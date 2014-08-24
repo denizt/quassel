@@ -144,6 +144,11 @@
 #  include "settingspages/shortcutssettingspage.h"
 #endif
 
+#ifdef Q_OS_MAC
+#include "cocoainitializer.h"
+#include "sparkleautoupdater.h"
+#endif
+
 MainWin::MainWin(QWidget *parent)
 #ifdef HAVE_KDE
     : KMainWindow(parent),
@@ -265,6 +270,12 @@ void MainWin::init()
         // No autoconnect selected (or no accounts)
         showCoreConnectionDlg();
     }
+
+    // initiliaze Sparkle auto update
+#ifdef Q_OS_MAC
+    CocoaInitializer initializer;
+    updater = new SparkleAutoUpdater();
+#endif
 }
 
 
@@ -417,6 +428,12 @@ void MainWin::setupActions()
         this, SLOT(showAboutDlg()));
     aboutQuasselAct->setMenuRole(QAction::AboutRole);
     coll->addAction("AboutQuassel", aboutQuasselAct);
+  #ifdef Q_OS_MAC
+    QAction *checkForUpdatesAct = new Action(tr("Check for updates..."), coll, this,
+                                          SLOT(checkForUpdates()));
+    checkForUpdatesAct->setMenuRole(QAction::ApplicationSpecificRole);
+    coll->addAction("CheckForUpdates", checkForUpdatesAct);
+  #endif
 
     QAction *aboutQtAct = new Action(QIcon(":/pics/qt-logo.png"), tr("About &Qt"), coll,
         qApp, SLOT(aboutQt()));
@@ -558,6 +575,9 @@ void MainWin::setupMenus()
 
     _helpMenu = menuBar()->addMenu(tr("&Help"));
     _helpMenu->addAction(coll->action("AboutQuassel"));
+#ifdef Q_OS_MAC
+    _helpMenu->addAction(coll->action("CheckForUpdates"));
+#endif
 #ifndef HAVE_KDE
     _helpMenu->addAction(coll->action("AboutQt"));
 #else
@@ -1319,6 +1339,11 @@ void MainWin::showAwayLog()
     _awayLog->show();
 }
 
+void MainWin::checkForUpdates() {
+  if (updater) {
+    updater->checkForUpdates();
+  }
+}
 
 void MainWin::awayLogDestroyed()
 {

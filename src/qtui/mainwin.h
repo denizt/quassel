@@ -30,6 +30,7 @@
 #include "qtui.h"
 #include "titlesetter.h"
 #include "uisettings.h"
+#include "autoupdater.h"
 
 class ActionCollection;
 class BufferHotListFilter;
@@ -111,6 +112,7 @@ private slots:
     void addBufferView(int bufferViewConfigId);
     void awayLogDestroyed();
     void removeBufferView(int bufferViewConfigId);
+    void checkForUpdates();
     void currentBufferChanged(BufferId);
     void messagesInserted(const QModelIndex &parent, int start, int end);
     void showAboutDlg();
@@ -219,7 +221,7 @@ private:
     BufferHotListFilter *_bufferHotList;
     QHash<int, BufferId> _jumpKeyMap;
     int _activeBufferViewIndex;
-
+    AutoUpdater* updater;
     friend class QtUi;
 };
 

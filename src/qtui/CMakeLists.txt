@@ -4,6 +4,7 @@ set(SOURCES
     aboutdlg.cpp
     awaylogfilter.cpp
     awaylogview.cpp
+    autoupdater.cpp
     bufferwidget.cpp
     channellistdlg.cpp
     chatitem.cpp
@@ -150,6 +151,15 @@ if (WITH_NOTIFICATION_CENTER)
     list(APPEND LIBS "/System/Library/Frameworks/Foundation.framework")
 endif()
 
+if (APPLE)
+    FIND_LIBRARY(SPARKLE_LIBRARY Sparkle)
+    FIND_LIBRARY(APPKIT AppKit)
+    MARK_AS_ADVANCED (APPKIT SPARKLE_LIBRARY)
+    SET(EXTRA_LIBS ${APPKIT} ${SPARKLE_LIBRARY})
+    list(APPEND SOURCES cocoainitializer.mm sparkleautoupdater.mm)
+    list(APPEND LIBS ${EXTRA_LIBS})
+endif()
+
 foreach(FORM ${FORMS})
   set(FORMPATH ${FORMPATH} ui/${FORM})
 endforeach(FORM ${FORMS})
@@ -189,4 +199,5 @@ if (LIBS)
     target_link_libraries(mod_qtui ${LIBS})
 endif()
 
+target_link_libraries(mod_qtui ${EXTRA_LIBS})
 add_dependencies(mod_qtui mod_common mod_client mod_uisupport)
